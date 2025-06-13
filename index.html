@@ -2,99 +2,70 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Mini Web Browser</title>
+  <title>Web Search</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script async src="https://cse.google.com/cse.js?cx=7196722025259401b"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
+      background: #f2f2f2;
       margin: 0;
-      padding: 0;
-      background: #f0f0f0;
-    }
-    header {
       padding: 1em;
-      background: #007BFF;
-      color: white;
-      text-align: center;
     }
-    #searchBar {
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1em;
+    }
+
+    #searchBox {
       display: flex;
       justify-content: center;
-      padding: 1em;
-      background: white;
+      margin-bottom: 1em;
     }
+
     #searchInput {
       width: 90%;
       max-width: 500px;
       padding: 12px;
       font-size: 16px;
+      border-radius: 8px;
       border: 1px solid #ccc;
-      border-radius: 8px;
-    }
-    iframe {
-      width: 100%;
-      height: 80vh;
-      border: none;
-      display: none;
-    }
-    .gcse-searchresults-only {
-      padding: 1em;
-    }
-    #previewWrapper {
-      padding: 1em;
-      text-align: center;
-    }
-    #visitBtn {
-      margin-top: 1em;
-      padding: 10px 20px;
-      font-size: 16px;
-      background: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
+      box-sizing: border-box;
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>Simulated Web Browser</h1>
-  </header>
-
-  <div id="searchBar">
-    <input type="text" id="searchInput" placeholder="Search the web..." />
+  <h1>Search the Web</h1>
+  <div id="searchBox">
+    <input type="text" id="searchInput" placeholder="Type something and press Enter..." />
   </div>
 
   <div class="gcse-searchresults-only"></div>
 
-  <div id="previewWrapper">
-    <iframe id="previewFrame"></iframe>
-    <div id="iframeError" style="display:none;">
-      <p>This site doesn’t allow previewing in an iframe.</p>
-      <button id="visitBtn">Visit Site</button>
-    </div>
-  </div>
-
   <script>
-    function runSearch(query) {
-      const searchBox = google?.search?.cse?.element?.getElement("searchresults-only0");
-      if (searchBox) searchBox.execute(query);
+    function updateHashAndSearch() {
+      const query = document.getElementById("searchInput").value.trim();
+      if (query) {
+        location.hash = encodeURIComponent(query);
+        const searchBox = google?.search?.cse?.element?.getElement("searchresults-only0");
+        if (searchBox) searchBox.execute(query);
+      }
     }
 
+    // Handle Enter key
     document.getElementById("searchInput").addEventListener("keydown", e => {
-      if (e.key === "Enter") {
-        location.hash = encodeURIComponent(e.target.value.trim());
-        runSearch(e.target.value.trim());
-      }
+      if (e.key === "Enter") updateHashAndSearch();
     });
 
-    // Load query from hash
+    // Run search from hash on page load
     window.addEventListener("load", () => {
       const hash = decodeURIComponent(location.hash.slice(1));
       if (hash) {
         document.getElementById("searchInput").value = hash;
+
+        // Wait for CSE to load before executing search
         const interval = setInterval(() => {
           const searchBox = google?.search?.cse?.element?.getElement("searchresults-only0");
           if (searchBox) {
@@ -104,40 +75,6 @@
         }, 200);
       }
     });
-
-    // Override link clicks after search results render
-    document.addEventListener("click", e => {
-      const link = e.target.closest("a");
-      if (link && link.href && link.closest(".gsc-webResult")) {
-        e.preventDefault();
-        previewSite(link.href);
-      }
-    });
-
-    function previewSite(url) {
-      const iframe = document.getElementById("previewFrame");
-      const errorBox = document.getElementById("iframeError");
-      const visitBtn = document.getElementById("visitBtn");
-
-      iframe.style.display = "block";
-      errorBox.style.display = "none";
-      iframe.src = url;
-
-      let failed = false;
-
-      // Detect iframe load failure (very basic)
-      iframe.onload = () => {
-        try {
-          const blocked = iframe.contentWindow.location.hostname === window.location.hostname;
-          if (blocked) throw new Error();
-        } catch (e) {
-          failed = true;
-          iframe.style.display = "none";
-          errorBox.style.display = "block";
-          visitBtn.onclick = () => window.open(url, "_blank");
-        }
-      };
-    }
   </script>
 
 </body>
