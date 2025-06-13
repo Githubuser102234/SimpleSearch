@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Search</title>
+  <script src="data.js"></script>
+  <style>
+    body { font-family: Arial; }
+    .result { margin: 10px 0; }
+    .result a { color: blue; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <h1>Search</h1>
+  <input type="text" id="searchInput" placeholder="Search..." onkeyup="searchPages()" />
+  <div id="results"></div>
+
+  <script>
+    function searchPages() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '';
+
+      if (!query) return;
+
+      const results = pages.filter(p =>
+        p.title.toLowerCase().includes(query) ||
+        p.content.toLowerCase().includes(query)
+      );
+
+      if (results.length === 0) {
+        resultsDiv.innerHTML = '<p>No results found.</p>';
+        return;
+      }
+
+      results.forEach(p => {
+        resultsDiv.innerHTML += `<div class="result">
+          <a href="${p.url}">${p.title}</a><br>
+          <small>${p.content.substring(0, 100)}...</small>
+        </div>`;
+      });
+    }
+  </script>
+</body>
+</html>
