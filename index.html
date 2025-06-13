@@ -1,51 +1,81 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
   <title>Web Search</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script async src="https://cse.google.com/cse.js?cx=7196722025259401b"></script>
   <style>
-    body { font-family: Arial, sans-serif; padding: 2em; text-align: center; }
-    input {
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 1em;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1em;
+    }
+
+    #searchBox {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1em;
+    }
+
+    #searchInput {
       width: 90%;
+      max-width: 500px;
       padding: 12px;
-      font-size: 18px;
+      font-size: 16px;
       border-radius: 8px;
       border: 1px solid #ccc;
-    }
-    button {
-      padding: 12px 24px;
-      font-size: 18px;
-      border: none;
-      background-color: #007BFF;
-      color: white;
-      border-radius: 8px;
-      margin-top: 10px;
+      box-sizing: border-box;
     }
   </style>
 </head>
 <body>
+
   <h1>Search the Web</h1>
-  <input type="text" id="searchInput" placeholder="Type a search..." />
-  <br />
-  <button onclick="submitSearch()">Search</button>
+  <div id="searchBox">
+    <input type="text" id="searchInput" placeholder="Type something and press Enter..." />
+  </div>
+
+  <div class="gcse-searchresults-only"></div>
 
   <script>
-    function submitSearch() {
+    function updateHashAndSearch() {
       const query = document.getElementById("searchInput").value.trim();
       if (query) {
         location.hash = encodeURIComponent(query);
+        const searchBox = google?.search?.cse?.element?.getElement("searchresults-only0");
+        if (searchBox) searchBox.execute(query);
       }
     }
 
-    window.onload = () => {
-      const hash = location.hash.slice(1); // Remove the '#' character
+    // Handle Enter key
+    document.getElementById("searchInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") updateHashAndSearch();
+    });
+
+    // Run search from hash on page load
+    window.addEventListener("load", () => {
+      const hash = decodeURIComponent(location.hash.slice(1));
       if (hash) {
-        // Choose your search engine here:
-        const searchUrl = `https://duckduckgo.com/?q=${hash}`;
-        window.location.href = searchUrl;
+        document.getElementById("searchInput").value = hash;
+
+        // Wait for CSE to load before executing search
+        const interval = setInterval(() => {
+          const searchBox = google?.search?.cse?.element?.getElement("searchresults-only0");
+          if (searchBox) {
+            clearInterval(interval);
+            searchBox.execute(hash);
+          }
+        }, 200);
       }
-    };
+    });
   </script>
+
 </body>
 </html>
