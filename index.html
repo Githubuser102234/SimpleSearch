@@ -1,44 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Search</title>
-  <script src="data.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web Search</title>
   <style>
-    body { font-family: Arial; }
-    .result { margin: 10px 0; }
-    .result a { color: blue; text-decoration: underline; }
+    body { font-family: Arial, sans-serif; padding: 2em; text-align: center; }
+    input {
+      width: 90%;
+      padding: 12px;
+      font-size: 18px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 18px;
+      border: none;
+      background-color: #007BFF;
+      color: white;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
-  <h1>Search</h1>
-  <input type="text" id="searchInput" placeholder="Search..." onkeyup="searchPages()" />
-  <div id="results"></div>
+  <h1>Search the Web</h1>
+  <input type="text" id="searchInput" placeholder="Type a search..." />
+  <br />
+  <button onclick="submitSearch()">Search</button>
 
   <script>
-    function searchPages() {
-      const query = document.getElementById('searchInput').value.toLowerCase();
-      const resultsDiv = document.getElementById('results');
-      resultsDiv.innerHTML = '';
-
-      if (!query) return;
-
-      const results = pages.filter(p =>
-        p.title.toLowerCase().includes(query) ||
-        p.content.toLowerCase().includes(query)
-      );
-
-      if (results.length === 0) {
-        resultsDiv.innerHTML = '<p>No results found.</p>';
-        return;
+    function submitSearch() {
+      const query = document.getElementById("searchInput").value.trim();
+      if (query) {
+        location.hash = encodeURIComponent(query);
       }
-
-      results.forEach(p => {
-        resultsDiv.innerHTML += `<div class="result">
-          <a href="${p.url}">${p.title}</a><br>
-          <small>${p.content.substring(0, 100)}...</small>
-        </div>`;
-      });
     }
+
+    window.onload = () => {
+      const hash = location.hash.slice(1); // Remove the '#' character
+      if (hash) {
+        // Choose your search engine here:
+        const searchUrl = `https://duckduckgo.com/?q=${hash}`;
+        window.location.href = searchUrl;
+      }
+    };
   </script>
 </body>
 </html>
